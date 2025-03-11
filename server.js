@@ -33,7 +33,8 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'db_forum'
+    database: 'db_forum',
+    charset: 'utf8mb4'
 });
 
 db.connect((err) => {
