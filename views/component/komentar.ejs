@@ -28,25 +28,27 @@
                 <div class="border-t pt-4">
                     <h3 class="font-semibold mb-3">Komentar</h3>
                     <div class="space-y-4" id="comments-<%= post.id %>">
-                        <div class="flex items-start space-x-3">
+                        <div class="">
                             <% post.comments.forEach(function(comment) { %>
-                                <img alt="Profile picture" class="w-8 h-8 rounded-full" src="/images/profile.jpg"/>
-                                <div class="bg-gray-100 p-3 rounded-lg w-full">
-                                    <p class="font-semibold text-sm"><%= comment.username %></p>
-                                    <p class="text-gray-700 text-sm"><%= comment.content %></p>
-                                    <% if (comment.replies && comment.replies.length > 0) { %>
-                                        <div class="ml-8 mt-2 space-y-2">
-                                            <% comment.replies.forEach(function(reply) { %>
-                                                <div class="flex items-start space-x-3">
-                                                    <img alt="Profile picture" class="w-6 h-6 rounded-full" src="/images/profile.jpg"/>
-                                                    <div class="bg-gray-200 p-2 rounded-lg w-full">
-                                                        <p class="font-semibold text-sm"><%= reply.username %></p>
-                                                        <p class="text-gray-700 text-sm"><%= reply.content %></p>
+                                <div class="flex items-start space-x-3 mb-3">
+                                    <img alt="Profile picture" class="w-8 h-8 rounded-full" src="/images/profile.jpg"/>
+                                    <div class="bg-gray-100 p-3 rounded-lg w-full">
+                                        <p class="font-semibold text-sm"><%= comment.username %></p>
+                                        <p class="text-gray-700 text-sm"><%= comment.content %></p>
+                                        <% if (comment.replies && comment.replies.length > 0) { %>
+                                            <div class="ml-8 mt-2 space-y-2">
+                                                <% comment.replies.forEach(function(reply) { %>
+                                                    <div class="flex items-start space-x-3">
+                                                        <img alt="Profile picture" class="w-6 h-6 rounded-full" src="/images/profile.jpg"/>
+                                                        <div class="bg-gray-200 p-2 rounded-lg w-full">
+                                                            <p class="font-semibold text-sm"><%= reply.username %></p>
+                                                            <p class="text-gray-700 text-sm"><%= reply.content %></p>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            <% }); %>
-                                        </div>
-                                    <% } %>
+                                                <% }); %>
+                                            </div>
+                                        <% } %>
+                                    </div>
                                 </div>
                             <% }); %>
                         </div>
