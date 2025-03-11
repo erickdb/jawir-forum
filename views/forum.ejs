@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAWIR | Forum</title>
+    <link rel="stylesheet" href="/css/output.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <script src="/dist/scroll.bundle.js" defer></script>
+    <style>
+        .hidden { display: none; }
+        .show { display: flex; }
+        .ov {
+            margin: 0;
+            overflow: visible !important;
+        }
+    </style>
+</head>
+<body>
+    <%- include('component/navbar') %>
+    <section class="bg-white text-gray-800 min-h-screen">
+        <%- include('component/header') %>
+        <div id="postsContainer">
+            <% posts.forEach(post => { %>
+                <div class="max-w-xl mx-auto mt-10 bg-white border border-gray-300 rounded-xl shadow-sm scroll-post" data-post-id="<%= post.id %>">
+                    <!-- Konten Postingan -->
+                    <div class="p-4 rounded-t-xl">
+                        <div class="flex items-center border-b pb-3">
+                            <img alt="Profile picture of the user" class="w-10 h-10 rounded-full mr-3" height="40" src="/images/profile.jpg" width="40"/>
+                            <div class="block">
+                                <p class="font-semibold ml-2"><%= post.username %></p>
+                                <p class="text-gray-500 ml-2">
+                                    <%= new Date(post.createdAt).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' })%> 
+                                    <%= new Date(post.createdAt).toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' }) %> ·
+                                    <i class="fas fa-globe-americas"></i>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="w-full">
+                            <div class="mt-6">
+                                <p class="text-lg"><%= post.content %></p>
+                            </div>
+                            <div class="mt-6 flex items-center text-gray-500 justify-between w-full">
+                                <div flex items-center space-x-1 p-2>
+                                    <span id="like-count-<%= post.id %>">
+                                        <%= post.likes ?? 0%>
+                                    </span>
+                                    <i class="far fa-thumbs-up"></i>
+                                </div>
+                                <span id="comments-count-<%= post.id %>">
+                                    <%= post.comments_count ?? 0 %> Komentar.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-300"></div>
+                    <div class="flex justify-around p-2 text-gray-500">
+                        <div class="flex items-center space-x-1 cursor-pointer hover:bg-gray-200 p-2 rounded">
+                            <button type="button" class="like-btn" onclick="toggleLike('<%= post.id %>')" data-post-id="<%= post.id %>">
+                                <i class="far fa-thumbs-up <%= post.user_liked ? 'text-blue-500' : ''%>"></i>
+                                <span>Suka</span>
+                            </button>
+                        </div>
+                        <div class="flex items-center space-x-1 cursor-pointer hover:bg-gray-200 p-2 rounded">
+                            <div>
+                                <button type="button" onclick="toggleKomentar('<%= post.id %>')" id="komentar-menu-button-<%= post.id %>">
+                                    <i class="far fa-comment"></i>
+                                    <span>Komentar</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+        <%- include('component/komentar') %>
+        
+    
+    </section>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/socket.js"></script>
+    <script type="module" src="/js/scroll.js"></script>
+    <script>
+
+        const socket = io();
+        
+        function toggleDropdown() {
+            const dropdown = document.getElementById("profileDropdown");
+            dropdown.classList.toggle("hidden");
+            dropdown.classList.toggle("show");
+        }
+
+        window.onclick = function(event) {
+            const dropdown = document.getElementById("profileDropdown");
+            const userMenuButton = document.getElementById("user-menu-button");
+
+            if (!userMenuButton.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.add("hidden");
+                dropdown.classList.remove("show");
+            }
+        };
+
+        function toggleLike(postId) {
+            const likeButton = document.querySelector(`.like-btn[data-post-id="${postId}"] i`);
+            const likeCount = document.getElementById(`like-count-${postId}`);
+
+            // Optimistic update (feedback instan)
+            if (likeButton.classList.contains('text-blue-500')) {
+                likeButton.classList.remove('text-blue-500');
+                likeCount.textContent = parseInt(likeCount.textContent) - 1;
+            } else {
+                likeButton.classList.add('text-blue-500');
+                likeCount.textContent = parseInt(likeCount.textContent) + 1;
+            }
+
+            // Kirim request ke backend
+            fetch('/add-like', {
+                method: 'POST',
+                body: JSON.stringify({ postId }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    // Rollback jika gagal
+                    if (data.liked) {
+                        likeButton.classList.remove('text-blue-500');
+                        likeCount.textContent = parseInt(likeCount.textContent) - 1;
+                    } else {
+                        likeButton.classList.add('text-blue-500');
+                        likeCount.textContent = parseInt(likeCount.textContent) + 1;
+                    }
+                    alert('Failed to toggle like');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error communicating with the server');
+            });
+        }
+
+        function toggleKomentar(postId) {
+            console.log("toggleKomentar function triggered");
+            event.stopPropagation();
+            const komentarDropdown = document.getElementById(`komentarDropdown-${postId}`);
+            if (komentarDropdown) {
+                komentarDropdown.classList.toggle('hidden');
+                komentarDropdown.classList.toggle("show");
+            }
+        }
+
+        document.addEventListener("click", function(event) {
+            const komentar = document.getElementById("komentarDropdown");
+            const komentarMenuButton = document.getElementById(`komentar-menu-button`);
+            console.log("komentarMenuButton", komentarMenuButton);
+
+            if (!komentarMenuButton.contains(event.target) && komentar.classList.contains("show")) {
+                komentar.classList.add("hidden");
+                komentar.classList.remove("show");
+            }
+        });
+
+        function submitPost(event) {
+            event.preventDefault();
+            const form = document.getElementById('postForm');
+            const contentInput = document.querySelector('input[name="content"]');
+            const formData = new URLSearchParams(new FormData(form));
+
+            fetch('/add-post', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    contentInput.value = "";
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function submitKomen(event, postId) {
+            event.preventDefault();
+            console.log("submitKomen function triggered");
+
+            const form = document.getElementById(`komenForm-${postId}`);
+            const contentInput = form.querySelector('input[name="contentKomen"]');
+            if (!postId) {
+                console.error('postId is missing');
+                return;
+            }
+
+            const formData = new URLSearchParams(new FormData(form));
+            formData.append('postId', postId);
+
+            console.log("Submitting comment with data:", { postId, content: contentInput.value });
+
+            fetch('/add-komen', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    contentInput.value = "";
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        newPost('newPost');
+        newComment('newComment');
+        newLike('newLike');
+    </script>
+</body>
+</html>

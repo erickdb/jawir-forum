@@ -1,0 +1,35 @@
+<div class="">
+    <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+        <div class="flex flex-col items-center justify-center py-12">
+            <h1 class="text-3xl font-bold head-tittle"><%= tittle %></h1>
+            <h1 class="text-xl font-semibold head-welcome">Selamat datang, <%= user.nama %>!</h1>
+        </div>
+    </div>
+    <div class="flex justify-center">
+        <div class="bg-white p-4 rounded-2xl shadow-md w-full max-w-md relative">
+            <div class="flex items-center space-x-4">
+                <img
+                    alt="Profile picture of a sunset over a landscape"
+                    class="w-10 h-10 rounded-full"
+                    height="40"
+                    src="/images/profile.jpg"
+                    width="40"
+                />
+                <div class="flex-1 bg-gray-100 rounded-full pl-4 pr-12 py-2 relative">
+                    <form id="postForm" onsubmit="submitPost(event)">
+                        <input 
+                            type="text" 
+                            name="content"
+                            placeholder="Apa Yang Anda Pikirkan?" 
+                            class="w-full h-7 bg-transparent placeholder-gray-500 text-gray-800 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 rounded-full"
+                            required
+                        >
+                        <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-white bg-blue-800 rounded-full hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <img src="/images/send-svgrepo-com.svg" alt="Send Icon" class="h-5 w-5">
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

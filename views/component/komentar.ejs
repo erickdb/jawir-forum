@@ -1,0 +1,67 @@
+<% posts.forEach(post => { %>
+    <div id="komentarDropdown-<%= post.id %>" class="komentar-dropdown fixed inset-0 bg-black bg-opacity-50 hidden z-50 justify-center items-center" role="menu" aria-orientation="vertical" tabindex="-1">
+        <div class="bg-white rounded-lg w-11/12 md:w-2/3 lg:w-1/2 h-[90vh] flex flex-col overflow-y-auto p-4" aria-labelledby="komentar-menu-button-<%= post.id%>" onclick="event.stopPropagation()">
+            <!-- Header Modal -->
+            <div class="flex justify-between items-center border-b pb-3 px-4">
+                <h2 class="text-xl font-semibold">Postingan <%= post.username %></h2>
+                <button onclick="toggleKomentar('<%= post.id %>')" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <!-- Konten Postingan -->
+            <div class="mt-6 mb-6 px-4">
+                <div class="flex items-center mb-3">
+                    <img alt="Profile picture" class="w-10 h-10 rounded-full mr-3" src="/images/profile.jpg"/>
+                    <div>
+                        <p class="font-semibold"><%= post.username %></p>
+                        <p class="text-gray-500 text-sm">
+                            <%= new Date(post.createdAt).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' })%> 
+                            <%= new Date(post.createdAt).toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' }) %> ·
+                            <i class="fas fa-globe-americas"></i>
+                        </p>
+                    </div>
+                </div>
+                <p class="text-gray-800 mb-3"><%= post.content %></p>
+            </div>
+            <!-- Komentar Section -->
+            <div class="flex-1 overflow-y-auto px-4">
+                <div class="border-t pt-4">
+                    <h3 class="font-semibold mb-3">Komentar</h3>
+                    <div class="space-y-4" id="comments-<%= post.id %>">
+                        <div class="flex items-start space-x-3">
+                            <% post.comments.forEach(function(comment) { %>
+                                <img alt="Profile picture" class="w-8 h-8 rounded-full" src="/images/profile.jpg"/>
+                                <div class="bg-gray-100 p-3 rounded-lg w-full">
+                                    <p class="font-semibold text-sm"><%= comment.username %></p>
+                                    <p class="text-gray-700 text-sm"><%= comment.content %></p>
+                                    <% if (comment.replies && comment.replies.length > 0) { %>
+                                        <div class="ml-8 mt-2 space-y-2">
+                                            <% comment.replies.forEach(function(reply) { %>
+                                                <div class="flex items-start space-x-3">
+                                                    <img alt="Profile picture" class="w-6 h-6 rounded-full" src="/images/profile.jpg"/>
+                                                    <div class="bg-gray-200 p-2 rounded-lg w-full">
+                                                        <p class="font-semibold text-sm"><%= reply.username %></p>
+                                                        <p class="text-gray-700 text-sm"><%= reply.content %></p>
+                                                    </div>
+                                                </div>
+                                            <% }); %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            <% }); %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Input Komentar -->
+            <div class="border-t px-4 py-4">
+                <div class="flex items-center space-x-2">
+                    <form id="komenForm-<%= post.id %>" onsubmit="submitKomen(event, '<%= post.id %>')" class="flex w-full">
+                        <input type="text" name="contentKomen" class="w-full flex-grow border border-gray-300 rounded-full px-4 py-2 text-gray-700" placeholder="Tulis komentar..."/>
+                        <button type="submit" class="ml-2 bg-blue-500 text-white rounded-full px-4 py-2">Kirim</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% }) %>
