@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "npm run start && npm run build:css",
     "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:css": "npx tailwindcss -i ./public/css/tailwind.css -o ./public/css/output.css --watch"
